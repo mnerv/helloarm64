@@ -1,0 +1,16 @@
+[*]
+indent_style = space
+indent_size  = 4
+insert_final_newline = false
+
+[*.{ts,js,tsx,jsx,lua,html,yml,json}]
+indent_size  = 2
+
+[*.S]
+insert_final_newline = true
+
+[*.go]
+indent_style = tab
+
+[Makefile]
+indent_style = tab
