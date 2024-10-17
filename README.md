@@ -35,12 +35,6 @@ qemu-aarch64 ./armex/helloworld
   - [ARM Assembly By Example](https://armasm.com/docs/getting-to-hello-world/basics/) - arm32
   - [Running Arm Binaries on x86 with QEMU-User](https://azeria-labs.com/arm-on-x86-qemu-user/)
 
-## Notes
+Unrelated:
 
-**Posix File Descriptors (Standard)**
-
-| File Descriptor  | Symbolic Name | Description     |
-| ---------------- | ------------- | --------------- |
-|                0 |       `stdin` | Standard Input  |
-|                1 |      `stdout` | Standard Output |
-|                2 |      `stderr` | Standard Error  |
+  - [rst Cheatsheet](https://bashtage.github.io/sphinx-material/rst-cheatsheet/rst-cheatsheet.html)
