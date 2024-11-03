@@ -28,6 +28,26 @@ Example running with QEMU-User on `x86_64`
 qemu-aarch64 ./armex/helloworld
 ```
 
+## Docker Container
+
+**Linux**:
+
+```sh
+docker build --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) -t helloarm64 .
+```
+
+**Windows**:
+
+```sh
+docker build -t helloarm64 .
+```
+
+Run container:
+
+```sh
+docker run -it --rm -v "$(pwd):/app" helloarm64
+```
+
 ## Resources
 
   - [arm64.syscall.sh](https://arm64.syscall.sh/)
