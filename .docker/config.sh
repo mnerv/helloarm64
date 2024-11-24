@@ -6,6 +6,8 @@ coreutils
 curl
 exa
 git
+man-pages
+man-db
 htop
 neofetch
 neovim
@@ -30,6 +32,11 @@ autoconf
 automake
 libtool
 m4
+ninja-build
+cmake
+meson
+qemu-aarch64
+gcompat
 "
 deps=$(printf "$deps" | tr '\n' ' ' | sed -e 's/^[[:space:]]*//')
 

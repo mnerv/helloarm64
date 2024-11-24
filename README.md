@@ -59,3 +59,22 @@ docker run -it --rm -v "$(pwd):/app" helloarm64
 Unrelated:
 
   - [rst Cheatsheet](https://bashtage.github.io/sphinx-material/rst-cheatsheet/rst-cheatsheet.html)
+
+## Documentations
+
+List all man pages.
+
+```sh
+apropos .
+```
+
+```sh
+man -k .
+```
+
+List in section number.
+
+```sh
+man -k . -s {section_number}
+```
+

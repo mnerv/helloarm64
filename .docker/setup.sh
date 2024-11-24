@@ -24,3 +24,4 @@ echo "export SHELL=$(which zsh)" >> ~/.zshrc
 echo "export EDITOR=nvim" >> ~/.zshrc
 echo "alias ls=exa" >> ~/.zshrc
 echo "alias cat='bat -pp'" >> ~/.zshrc
+echo "export PAGER='nvim +Man!'" >> ~/.zshrc

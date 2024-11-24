@@ -13,9 +13,16 @@ RUN apk update && apk upgrade; \
     addgroup porter wheel; \
     echo "permit persist :wheel" > "/etc/doas.d/doas.conf"
 
+# Set to root workdir
+WORKDIR /root
+
 # Run system config script
 COPY .docker/config.sh /root/config.sh
-RUN sh /root/config.sh
+RUN sh config.sh
+
+# Install arm64 toolchains
+COPY .docker/arm64.sh /root/arm64.sh
+RUN sh arm64.sh
 
 # Copy and change owner of setup scripts
 COPY .docker /home/porter/.docker
