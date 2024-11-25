@@ -25,3 +25,4 @@ echo "export EDITOR=nvim" >> ~/.zshrc
 echo "alias ls=exa" >> ~/.zshrc
 echo "alias cat='bat -pp'" >> ~/.zshrc
 echo "export PAGER='nvim +Man!'" >> ~/.zshrc
+echo 'export PATH=/opt/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-linux-gnu/bin:$PATH' >> ~/.zshrc

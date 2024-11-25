@@ -1,5 +1,6 @@
 # Build
 *.o
+qemu*.core
 
 # CMake
 build*
