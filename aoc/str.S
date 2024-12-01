@@ -1,3 +1,26 @@
+.section .rodata
+power_of_10:
+    .quad 1                    // 10^0
+    .quad 10                   // 10^1
+    .quad 100                  // 10^2
+    .quad 1000                 // 10^3
+    .quad 10000                // 10^4
+    .quad 100000               // 10^5
+    .quad 1000000              // 10^6
+    .quad 10000000             // 10^7
+    .quad 100000000            // 10^8
+    .quad 1000000000           // 10^9
+    .quad 10000000000          // 10^10
+    .quad 100000000000         // 10^11
+    .quad 1000000000000        // 10^12
+    .quad 10000000000000       // 10^13
+    .quad 100000000000000      // 10^14
+    .quad 1000000000000000     // 10^15
+    .quad 10000000000000000    // 10^16
+    .quad 100000000000000000   // 10^17
+    .quad 1000000000000000000  // 10^18
+    .quad 10000000000000000000 // 10^19
+
 .global strlen
 strlen:
     // Calculate the length of a null-terminated string
@@ -24,13 +47,67 @@ strlen_ret:
 
 .global u32_to_str
 u32_to_str:
-    // Convert u32 number to ascii format
+    // Convert u32 integer to ascii format
     // params:
     //     x0 - value
-    //     x1 - buffer
+    //     x1 - buffer_ptr
     //     x2 - buffer_len
     // returns:
-    //     x0 - 0: success, 1: error
+    //     x0 - 0: error, x > 0: success, where x is the written length
+
+    mov     x3, #0           // length of final string
+    adr     x4, power_of_10
+
+u32_to_str_check_exp_loop:
+    ldr     x5, [x4, x3]
+    cmp     x5, x0
+    b.hi    u32_to_str_exp_done
+    add     x3, x3, #8
+    b       u32_to_str_check_exp_loop
+
+u32_to_str_exp_done:
+    mov     x9, #8
+    udiv    x3, x3, x9
+
+    // check for out of buffer bound
+    cmp     x3, x2
+    b.gt    u32_to_str_exit_err
+
+    mov     x6, #10   // const value 10
+
+    mov     x9,  x3
+    mov     x11, x1
+    sub     x11, x3, #1
+    add     x11, x1, x11
+
+u32_to_str_insert_loop:
+    cmp     x9, #0
+    b.eq    u32_to_str_exit
+    sub     x9, x9, #1
+
+    udiv    x5, x0, x6      // y = x / 10
+    msub    x7, x6, x5, x0  // z = x - (y * 10)
+    add     x10, x7, #'0'
+    strb    w10, [x11], #-1
+    mov     x0, x5
+    cbnz    x0, u32_to_str_insert_loop
+
+u32_to_str_exit:
+    mov     x0, x3
+    ret
+
+u32_to_str_exit_err:
+    mov     x0, #0
+    ret
+
+.global str_to_u32
+str_to_u32:
+    // Convert string to u32 integer. No error checking digit check.
+    // params:
+    //     x0 - str_ptr
+    //     x1 - str_len
+    // returns:
+    //     x0 - converted value
     ret
 
 .global print

@@ -51,6 +51,9 @@ str_buf:
 exit_value:
     .word 42
 
+value:
+    .quad 1234
+
 .text
 
 .global _start
@@ -101,6 +104,21 @@ _start:
 
     adr     x1, mem_buf
     ldr     x0, [x1, #8]
+
+    mov     x0, #255
+    ldr     x1, =str_buf
+    ldr     x2, =str_buf_len
+    bl      u32_to_str
+
+    mov     x1, x0
+    ldr     x0, =str_buf
+    bl      nprint
+
+    ldr     x0, =ln_str
+    ldr     x1, =ln_str_len
+    bl      nprint
+
+    mov     x0, #0
 
     # mov x0, #0                // exit success
     bl exit
