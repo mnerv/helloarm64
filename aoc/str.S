@@ -108,6 +108,42 @@ str_to_u32:
     //     x1 - str_len
     // returns:
     //     x0 - converted value
+    mov x9, #0
+    mov w10, #0
+    mov x11, #0
+    mov x12, #10
+
+str_to_u32_loop:
+    ldrb w10, [x0, x11]
+    sub  x10, x10, #'0'
+    mul  x9, x9, x12
+    add  x9, x9, x10
+    add  x11, x11, #1
+
+    cmp x11, x1
+    b.ne str_to_u32_loop
+
+str_to_u32_exit:
+    mov x0, x9
+    ret
+
+is_digit:
+    // Check if digit
+    // params:
+    //     x0 - ascii character
+    // returns:
+    //     x0 - 1: true, 0: false
+    cmp x0, #'0'
+    b.lt is_digit_false
+
+    cmp x0, #'9'
+    b.gt is_digit_false
+
+    mov x0, #1
+    ret
+
+is_digit_false:
+    mov x0, #0
     ret
 
 .global print

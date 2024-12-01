@@ -48,11 +48,9 @@ str_buf:
     .fill 2048, 1, 0
     str_buf_len = . - str_buf
 
-exit_value:
-    .word 42
-
-value:
-    .quad 1234
+str_num:
+    .ascii  "1"
+    str_num_len = . - str_num
 
 .text
 
@@ -88,14 +86,40 @@ _start:
     ldr     x1, =ln_str_len
     bl      nprint
 
+    // seek to the end of file to get file size in bytes
     adr     x1, mem_buf
-    ldr     x0, [x1]             // arg0: fd
-    mov     x1, #0               // arg1: 0 start from zero
-    mov     x2, #2               // arg2: SEEK_END
+    ldr     x0, [x1]            // arg0: fd
+    mov     x1, #0              // arg1: 0 start from zero
+    mov     x2, #2              // arg2: SEEK_END
     bl      seek
 
+    // store file size in mem buffer
     adr     x1, mem_buf
     str     x0, [x1, #8]
+
+    // seek to beginning of the file again
+    ldr     x0, [x1]            // arg0: fd
+    mov     x1, #0              // arg1: 0 offset bytes
+    mov     x2, #0              // arg2: SEEK_SET
+    bl      seek
+
+    adr     x9, mem_buf
+    ldr     x10, [x9, #0]
+    ldr     x11, [x9, #8]
+    ldr     x12, =str_buf_len
+
+    cmp     x12, x11
+    csel    x13, x12, x11, lt
+
+    mov     x8, #63             // syscall: read
+    mov     x0, x10             // arg0: fd
+    ldr     x1, =str_buf        // arg1: buffer_ptr
+    mov     x2, x13             // arg2: count
+    svc     0
+
+    mov     x1, x13
+    ldr     x0, =str_buf
+    bl      nprint
 
     // close file
     mov     x8, #57
@@ -105,23 +129,8 @@ _start:
     adr     x1, mem_buf
     ldr     x0, [x1, #8]
 
-    mov     x0, #255
-    ldr     x1, =str_buf
-    ldr     x2, =str_buf_len
-    bl      u32_to_str
-
-    mov     x1, x0
-    ldr     x0, =str_buf
-    bl      nprint
-
-    ldr     x0, =ln_str
-    ldr     x1, =ln_str_len
-    bl      nprint
-
-    mov     x0, #0
-
-    # mov x0, #0                // exit success
-    bl exit
+    mov     x0, #0              // exit success
+    bl      exit
 
 err_open:
     ldr     x0, =err_open_str
@@ -140,14 +149,4 @@ err_open:
 
 exit:
     mov     x8, #93             // 93 is syscall exit
-    # adr     x1, exit_value
-    # ldr     x0, [x1]          // arg0: error_code
     svc     0
-
-
-    // store into memory buffer
-    // adr     x1, mem_buf
-    // mov     w0, #32
-    // str     w0, [x1]
-    // mov     w0, #100
-    // str     w0, [x1, #4]
