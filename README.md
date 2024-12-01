@@ -48,6 +48,12 @@ Run container:
 docker run -it --rm -v "$(pwd):/app" helloarm64
 ```
 
+Setup meson project.
+
+```sh
+meson setup build --cross-file=cross_none_aarch64.ini
+```
+
 ## Resources
 
   - [arm64.syscall.sh](https://arm64.syscall.sh/)

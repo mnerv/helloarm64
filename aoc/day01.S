@@ -86,12 +86,10 @@ _start:
     bl      nprint
 
     adr     x1, mem_buf
-
-    mov     x8, #62             // syscall: lseek
-    ldr     x0, [x1]            // arg0: fd
-    mov     x1, #0              // arg1: 0 start from zero
-    mov     x2, #2              // arg2: SEEK_END
-    svc     0
+    ldr     x0, [x1]             // arg0: fd
+    mov     x1, #0               // arg1: 0 start from zero
+    mov     x2, #2               // arg2: SEEK_END
+    bl      seek
 
     adr     x1, mem_buf
     str     x0, [x1, #8]

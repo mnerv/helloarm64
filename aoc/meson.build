@@ -9,6 +9,7 @@ executable(
   'aoc',
   [
     'str.S',
+    'fstrm.S',
     'day01.S',
   ],
   install: false,
