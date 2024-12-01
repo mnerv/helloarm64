@@ -40,9 +40,20 @@ filename_str:
     .asciz  "./dat/24/ex/01.txt"
     filename_str_len = . - filename_str
 
+mem_buf_fd         = 0 * 8
+mem_buf_text_size  = 1 * 8
+mem_buf_tmp_ptr    = 2 * 8
+mem_buf_tmp_offset = 3 * 8
+mem_buf_tmp_a      = 4 * 8
+mem_buf_tmp_b      = 5 * 8
+
 mem_buf:
     .fill 1024, 1, 0
     mem_buf_len = . - mem_buf
+
+read_buf:
+    .fill 2048, 1, 0
+    read_buf_len = . - read_buf
 
 str_buf:
     .fill 2048, 1, 0
@@ -51,6 +62,12 @@ str_buf:
 str_num:
     .ascii  "1"
     str_num_len = . - str_num
+
+vec_a:
+    .fill 128, 1, 0
+
+vec_b:
+    .fill 128, 1, 0
 
 .text
 
@@ -71,7 +88,7 @@ _start:
     b.le    err_open
 
     adr     x1, mem_buf
-    str     x0, [x1]
+    str     x0, [x1, mem_buf_fd]
 
     // print opened file
     ldr     x0, =opened_str
@@ -95,7 +112,7 @@ _start:
 
     // store file size in mem buffer
     adr     x1, mem_buf
-    str     x0, [x1, #8]
+    str     x0, [x1, mem_buf_text_size]
 
     // seek to beginning of the file again
     ldr     x0, [x1]            // arg0: fd
@@ -106,20 +123,91 @@ _start:
     adr     x9, mem_buf
     ldr     x10, [x9, #0]
     ldr     x11, [x9, #8]
-    ldr     x12, =str_buf_len
+    ldr     x12, =read_buf_len
 
     cmp     x12, x11
     csel    x13, x12, x11, lt
 
     mov     x8, #63             // syscall: read
     mov     x0, x10             // arg0: fd
-    ldr     x1, =str_buf        // arg1: buffer_ptr
+    ldr     x1, =read_buf       // arg1: buffer_ptr
     mov     x2, x13             // arg2: count
     svc     0
 
-    mov     x1, x13
-    ldr     x0, =str_buf
-    bl      nprint
+tokenize_digit:
+    adr     x0, mem_buf
+    adr     x9, read_buf
+    str     x9, [x0, mem_buf_tmp_ptr]
+
+    mov     x10, #0
+
+tokenize_digit_loop:
+    ldrb    w11, [x9, x10]
+    cmp     x11, #' '
+    b.eq    tokenize_eat_space
+    cmp     x11, #'\n'
+    b.eq    tokenize_eat_newline
+
+tokenize_eat_digit_loop:
+    ldrb    w11, [x9, x10]
+    mov     x0, x11
+    bl      is_digit
+    cmp     x0, #1
+    b.ne    tokenize_digit_loop
+    add     x10, x10, #1
+    b       tokenize_eat_digit_loop
+
+tokenize_eat_space:
+    adr     x1, mem_buf
+    str     x10, [x1, mem_buf_tmp_offset]
+    ldr     x11, [x1, mem_buf_tmp_ptr]
+
+    mov     x0, x11
+    mov     x1, x10
+    bl      str_to_u32
+
+    adr     x1, mem_buf
+    str     x0, [x1, mem_buf_tmp_a]
+
+    adr     x9, read_buf
+    ldr     x10, [x1, mem_buf_tmp_offset]
+
+tokenize_eat_space_loop:
+    ldrb    w11, [x9, x10]
+    add     x10, x10, #1
+    cmp     x11, #' '
+    b.eq    tokenize_eat_space_loop
+
+    adr     x0, mem_buf
+    add     x1, x9, x10
+    str     x1, [x0, mem_buf_tmp_ptr]
+    mov     x10, #0
+    str     x10, [x0, mem_buf_tmp_offset]
+    ldr     x9, [x0, mem_buf_tmp_ptr]
+
+    b       tokenize_digit_loop
+
+tokenize_eat_newline:
+    # adr     x1, mem_buf
+    # str     x10, [x1, mem_buf_tmp_offset]
+    # ldr     x11, [x1, mem_buf_tmp_ptr]
+    #
+    # mov     x0, x11
+    # mov     x1, x10
+    # bl      str_to_u32
+    #
+    # adr     x1, mem_buf
+    # str     x0, [x1, mem_buf_tmp_b]
+
+    # adr     x9, read_buf
+    # ldr     x10, [x1, mem_buf_tmp_offset]
+    #
+    # add     x10, x10, #1
+    # adr     x0, mem_buf
+    # add     x1, x9, x10
+    # str     x1, [x0, mem_buf_tmp_ptr]
+
+    # b       tokenize_digit_loop
 
     // close file
     mov     x8, #57
@@ -127,9 +215,9 @@ _start:
     svc     0
 
     adr     x1, mem_buf
-    ldr     x0, [x1, #8]
+    ldr     x0, [x1, mem_buf_tmp_b]
 
-    mov     x0, #0              // exit success
+    # mov     x0, #0              // exit success
     bl      exit
 
 err_open:

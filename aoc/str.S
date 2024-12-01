@@ -127,6 +127,7 @@ str_to_u32_exit:
     mov x0, x9
     ret
 
+.global is_digit
 is_digit:
     // Check if digit
     // params:
